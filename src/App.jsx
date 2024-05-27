@@ -7,9 +7,7 @@ function App() {
   const [tasks, setTask] = useState([]);
 
   const handleComplete = (id) => {
-    setTask(
-      tasks.map((task) => (task.id === id ? { ...task, done: true } : task))
-    );
+    setTask(tasks.map((task) => (task.id === id ? { ...task, done: true } : task)));
   };
 
   const handleRemove = (id) => {
@@ -32,12 +30,7 @@ function App() {
           {tasks
             .filter((task) => !task.done)
             .map((task, index) => (
-              <TaskItem
-                key={`task-${index}`}
-                task={task}
-                onComplete={handleComplete}
-                onRemove={handleRemove}
-              />
+              <TaskItem key={`task-${index}`} task={task} onComplete={handleComplete} onRemove={handleRemove} />
             ))}
 
           {/* separator */}
