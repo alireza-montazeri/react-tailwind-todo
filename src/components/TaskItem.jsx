@@ -1,5 +1,5 @@
 import TaskButton from "./TaskButton";
-export default function ({ task, done, onComplete, onRemove }) {
+default function ({ task, done, onComplete, onRemove }) {
   const defaultClasses =
     "bg-sky-100 rounded flex justify-between items-center gap-2 p-3 group hover:cursor-pointer hover:bg-slate-100 transition text-blue-500";
   const doneClasses =
