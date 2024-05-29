@@ -34,7 +34,7 @@ describe("App Component", () => {
     fireEvent.click(completeButton);
 
     expect(screen.getByText("done")).toBeInTheDocument();
-    expect(screen.queryByText("close")).toBeInTheDocument();
+    expect(screen.queryByText("close")).not.toBeInTheDocument();
   });
 
   test("can remove a task", () => {
