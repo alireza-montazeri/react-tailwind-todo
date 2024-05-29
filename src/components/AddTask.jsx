@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 export default function ({ onAdd }) {
   const [task, setTask] = useState("");
 
@@ -26,9 +26,7 @@ export default function ({ onAdd }) {
         className="border-2 rounded-r-md border-blue-500 text-white bg-blue-500 w-11 h-full text-3xl flex items-center justify-center"
         onClick={handleAdd}
       >
-        <span className="material-symbols-outlined font-bold hover:scale-125 transition">
-          add
-        </span>
+        <span className="material-symbols-outlined font-bold hover:scale-125 transition">add</span>
       </button>
     </div>
   );
