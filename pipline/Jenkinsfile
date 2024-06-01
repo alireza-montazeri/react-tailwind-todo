@@ -1,0 +1,120 @@
+pipeline {
+    agent any
+    
+    environment {
+        AWS_REGION = 'ap-southeast-2'
+        AWS_ACCESS_KEY_ID = 'AKIAZZQT4RMRIHMHLOAF'
+        AWS_SECRET_ACCESS_KEY = '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'
+        AMPLIFY_APP_ID = 'd364p15gzhsb45'
+        AMPLIFY_PROJ_NAME = 'reacttailwindtodo'
+        AMPLIFY_ENV_STAGING = 'staging'
+        AMPLIFY_ENV_PROD = 'prod'
+        SRC_DIR = "src"
+        DIST_DIR = "build"
+        
+        amplify = 'C:/Users/Alireza/AppData/Roaming/npm/amplify'
+        
+        EMAIL_RECIPIENT = "s223632922@deakin.edu.au"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/alireza-montazeri/react-tailwind-todo.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'npm install'
+                bat 'npm run build'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'npm test'
+            }
+        }
+
+        stage('Code Quality Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool name: 'SonarScanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                    withSonarQubeEnv('SonarQubeServer') {
+                      bat "${scannerHome}/bin/sonar-scanner"
+                    }   
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                echo 'Deploy to Staging'
+                script {
+                    // Define the configuration JSON strings
+                    def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
+                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
+                    def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_STAGING}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
+                    def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
+                    def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
+
+                    // Run Amplify commands with headless parameters
+                    bat "${amplify} pull --amplify ${AMPLIFYCONFIG} --frontend ${FRONTENDCONFIG} --providers ${PROVIDERSCONFIG} --yes"
+                    bat "${amplify} publish --yes"
+                    bat 'rmdir /s /q amplify'
+                }
+            }
+        }
+        
+        stage('Release') {
+            steps {
+                echo 'Deploy to Production'
+                // Create an Approval Button
+                input message: 'Do you want to approve the deployment to Production?'
+                
+                script {
+                    // Define the configuration JSON strings
+                    def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
+                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
+                    def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_PROD}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
+                    def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
+                    def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
+
+                    // Run Amplify commands with headless parameters
+                    bat "${amplify} pull --amplify ${AMPLIFYCONFIG} --frontend ${FRONTENDCONFIG} --providers ${PROVIDERSCONFIG} --yes"
+                    bat "${amplify} publish --yes"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                echo 'Pipeline completed!'
+            }
+        }
+
+        success {
+            emailext (
+                subject: "'React ToDo' CI/CD Pipline: ${currentBuild.currentResult}",
+                body: "Pipeline completed Successfully! You can see the Production version of the app in 'https://prod.d364p15gzhsb45.amplifyapp.com/'",
+                to: "${env.EMAIL_RECIPIENT}"
+            )
+        }
+
+        failure {
+            script {
+                // Save the last 1000 lines of the log to a file
+                writeFile file: 'console-log.txt', text: currentBuild.rawBuild.getLog(10000).join('\n')
+            }
+            emailext (
+                subject: "'React ToDo' CI/CD Pipline: ${currentBuild.currentResult}",
+                body: "Pipeline Failed! Check Jenkins and  attached log for more informations",
+                attachmentsPattern: 'console-log.txt',
+                to: "${env.EMAIL_RECIPIENT}"
+            )
+        }
+    }
+}

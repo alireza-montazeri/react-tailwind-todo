@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import packageJson from "../package.json";
 import Container from "./components/Container";
 import TaskItem from "./components/TaskItem";
 import AddTask from "./components/AddTask";
@@ -20,7 +21,7 @@ function App() {
   };
 
   return (
-    <div className="App flex bg-gradient-to-r from-blue-500 to-teal-200 justify-center items-center h-screen w-screen">
+    <div className="App flex bg-gradient-to-r from-blue-500 to-teal-200 justify-center items-center h-screen w-screen relative">
       <Container>
         <div className="flex flex-col flex-1 p-5 items-top gap-5">
           {/* add task */}
@@ -44,6 +45,7 @@ function App() {
             ))}
         </div>
       </Container>
+      <div className="absolute bottom-2 left-5 text-black font-semibold">v{packageJson.version}</div>
     </div>
   );
 }
