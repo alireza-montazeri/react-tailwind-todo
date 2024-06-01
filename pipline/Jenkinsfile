@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_REGION = 'ap-southeast-2'
         AWS_ACCESS_KEY_ID = 'AKIAZZQT4RMRIHMHLOAF'
-        AWS_ACCESS_KEY = 'eK9J65t9LmoEI8wjiHU83u6DeWIDfWOpqHBHTDjD'
+        AWS_SECRET_ACCESS_KEY = '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'
         AMPLIFY_APP_ID = 'd364p15gzhsb45'
         AMPLIFY_PROJ_NAME = 'reacttailwindtodo'
         AMPLIFY_ENV_STAGING = 'staging'
@@ -54,7 +54,7 @@ pipeline {
                 script {
                     // Define the configuration JSON strings
                     def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
-                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
+                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
                     def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_STAGING}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
                     def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
                     def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
@@ -76,7 +76,7 @@ pipeline {
                 script {
                     // Define the configuration JSON strings
                     def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
-                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
+                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
                     def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_PROD}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
                     def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
                     def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
