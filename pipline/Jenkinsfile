@@ -3,8 +3,7 @@ pipeline {
     
     environment {
         AWS_REGION = 'ap-southeast-2'
-        AWS_ACCESS_KEY_ID = 'AKIAZZQT4RMRIHMHLOAF'
-        AWS_SECRET_ACCESS_KEY = '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'
+        AWS_ACCESS_KEY_ID = 'AKIAZZQT4RMRF46OHSNP'
         AMPLIFY_APP_ID = 'd364p15gzhsb45'
         AMPLIFY_PROJ_NAME = 'reacttailwindtodo'
         AMPLIFY_ENV_STAGING = 'staging'
@@ -52,17 +51,21 @@ pipeline {
             steps {
                 echo 'Deploy to Staging'
                 script {
-                    // Define the configuration JSON strings
-                    def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
-                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
-                    def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_STAGING}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
-                    def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
-                    def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
+                    withCredentials([
+                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
+                        // Define the configuration JSON strings
+                        def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
+                        def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
+                        def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_STAGING}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
+                        def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
+                        def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
 
-                    // Run Amplify commands with headless parameters
-                    bat "${amplify} pull --amplify ${AMPLIFYCONFIG} --frontend ${FRONTENDCONFIG} --providers ${PROVIDERSCONFIG} --yes"
-                    bat "${amplify} publish --yes"
-                    bat 'rmdir /s /q amplify'
+                        // Run Amplify commands with headless parameters
+                        bat "${amplify} pull --amplify ${AMPLIFYCONFIG} --frontend ${FRONTENDCONFIG} --providers ${PROVIDERSCONFIG} --yes"
+                        bat "${amplify} publish --yes"
+                        bat 'rmdir /s /q amplify'
+                    }
                 }
             }
         }
@@ -73,17 +76,21 @@ pipeline {
                 // Create an Approval Button
                 input message: 'Do you want to approve the deployment to Production?'
                 
-                script {
-                    // Define the configuration JSON strings
-                    def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
-                    def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
-                    def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_PROD}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
-                    def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
-                    def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
+                script { 
+                    withCredentials([
+                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
+                        // Define the configuration JSON strings
+                        def REACTCONFIG = "{\\\"SourceDir\\\":\\\"${SRC_DIR}\\\",\\\"DistributionDir\\\":\\\"${DIST_DIR}\\\",\\\"BuildCommand\\\":\\\"npm run-script build\\\",\\\"StartCommand\\\":\\\"npm run-script start\\\"}"
+                        def AWSCLOUDFORMATIONCONFIG = "{\\\"configLevel\\\":\\\"project\\\",\\\"useProfile\\\":false,\\\"accessKeyId\\\":\\\"${env.AWS_ACCESS_KEY_ID}\\\",\\\"secretAccessKey\\\":\\\"${env.AWS_SECRET_ACCESS_KEY}\\\",\\\"region\\\":\\\"${env.AWS_REGION}\\\"}"
+                        def AMPLIFYCONFIG = "{\\\"projectName\\\":\\\"${env.AMPLIFY_PROJ_NAME}\\\",\\\"appId\\\":\\\"${env.AMPLIFY_APP_ID}\\\",\\\"envName\\\":\\\"${AMPLIFY_ENV_PROD}\\\",\\\"defaultEditor\\\":\\\"code\\\"}"
+                        def FRONTENDCONFIG = "{\\\"frontend\\\":\\\"javascript\\\",\\\"framework\\\":\\\"react\\\",\\\"config\\\":${REACTCONFIG}}"
+                        def PROVIDERSCONFIG = "{\\\"awscloudformation\\\":${AWSCLOUDFORMATIONCONFIG}}"
 
-                    // Run Amplify commands with headless parameters
-                    bat "${amplify} pull --amplify ${AMPLIFYCONFIG} --frontend ${FRONTENDCONFIG} --providers ${PROVIDERSCONFIG} --yes"
-                    bat "${amplify} publish --yes"
+                        // Run Amplify commands with headless parameters
+                        bat "${amplify} pull --amplify ${AMPLIFYCONFIG} --frontend ${FRONTENDCONFIG} --providers ${PROVIDERSCONFIG} --yes"
+                        bat "${amplify} publish --yes"
+                    }
                 }
             }
         }
